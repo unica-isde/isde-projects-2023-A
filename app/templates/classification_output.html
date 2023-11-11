@@ -11,7 +11,22 @@
             margin: 0 auto;
         }
 
+        .btn {
+            margin: 10px;
+            background-color: #333333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border: 3px solid #476d36;
+        }
+
+        .btn:hover {
+            background-color: #476d36;
+            border: 3px solid #333333;
+        }
+
     </style>
+
     <div class="row">
         <div class="col">
             <div class="card">
@@ -28,8 +43,14 @@
                         <h2 id="waitText"></h2>
                         </div>
                     </div>
-                </div>
-                <a class="btn btn-primary" href="/classifications" role="button">Back</a>
+                    <a class="btn btn-primary" href="/classifications" role="button">Back</a>
+            </div>
+            <div>
+                <a class="btn btn-primary" href="/" role="button" id="downloadResultsButton">Download results</a>
+            </div>
+            <div>
+                <a class="btn btn-primary" href="/" role="button" id="downloadPlotButton">Download plot</a>
+            </div>
         </div>
     </div>
     <script src="{{ "static/graph.js" }}" id="makeGraph" classification_scores="{{classification_scores}}"></script>
