@@ -1,5 +1,7 @@
 import unittest
 from bs4 import BeautifulSoup
+import requests
+
 
 
 class TestDownload(unittest.TestCase):
@@ -34,7 +36,15 @@ class TestDownload(unittest.TestCase):
             self.assertEqual(button.text, "Download plot", "The button has not the right text")
 
     def test_jsonIsCorrect(self):
-        pass
+        """
+        Test if the json file is not empty.
+        """
+        # Make a request to the endpoint that returns the json file
+        response = requests.get("http://localhost:8000/downloadResults")
+
+        # Check if the response is not empty and it is a json file
+        self.assertIsNotNone(response, "The json file is empty")
+        self.assertEqual(response.headers["Content-Type"], "application/json", "The file is not a json file")
 
     def test_plotIsCorrect(self):
         pass
