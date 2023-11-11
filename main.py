@@ -1,7 +1,7 @@
 import json
 from typing import Dict, List
 from fastapi import FastAPI, Request
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, FileResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 import redis
@@ -51,6 +51,8 @@ async def request_classification(request: Request):
     image_id = form.image_id
     model_id = form.model_id
     classification_scores = classify_image(model_id=model_id, img_id=image_id)
+    with open("app/static/results.json", "w") as f: #TODO asks if this has to be unique or shared between users
+        json.dump(classification_scores, f)
     return templates.TemplateResponse(
         "classification_output.html",
         {
@@ -59,3 +61,11 @@ async def request_classification(request: Request):
             "classification_scores": json.dumps(classification_scores),
         },
     )
+
+@app.get("/downloadResults")
+def download_results():
+    return FileResponse("app/static/results.json", media_type="application/json", filename="results.json")
+
+@app.get("/downloadPlot")
+def download_plot():
+    pass
