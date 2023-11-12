@@ -3,7 +3,7 @@ import asyncio
 from fastapi import Request
 
 # ****** internals libs
-from forms import classification_form
+from forms import ClassificationForm
 
 class TestForm(unittest.TestCase):
     def setUp(self):
