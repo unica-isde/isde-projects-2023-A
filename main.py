@@ -43,7 +43,6 @@ def create_classify(request: Request):
         {"request": request, "images": list_images(), "models": Configuration.models},
     )
 
-
 @app.post("/classifications")
 async def request_classification(request: Request):
     form = ClassificationForm(request)
@@ -59,3 +58,15 @@ async def request_classification(request: Request):
             "classification_scores": json.dumps(classification_scores),
         },
     )
+
+@app.post("/upload-and-classify")
+async def request_file_upload(request: Request):
+	form = ClassificationForm(request)
+	await form.load_data()
+
+	imag = form.image
+
+	print(type(form.image_bytes))
+	print(form.image_bytes[:100])
+     
+	return {"success":"True"}
