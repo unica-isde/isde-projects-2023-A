@@ -49,10 +49,44 @@
                 <a class="btn btn-primary" href="/downloadResults" role="button" id="downloadResultsButton">Download results</a>
             </div>
             <div>
-                <a class="btn btn-primary" href="/" role="button" id="downloadPlotButton">Download plot</a>
+                <a class="btn btn-primary" role="button" id="downloadPlotButton" onclick="downloadImage()">Download plot</a>
             </div>
         </div>
     </div>
+
     <script src="{{ "static/graph.js" }}" id="makeGraph" classification_scores="{{classification_scores}}"></script>
+    <script>
+        function downloadImage(){
+
+            var ctx = document.getElementById("classificationOutput").toDataURL();
+
+            fetch('/downloadPlot', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    'ctx': ctx
+                })
+            }).then(function (response) {
+                if (response.ok) {
+                    console.log(response);
+                    return response.blob();
+                }
+                throw new Error('Request failed.');
+            }).then(function (blob) {
+
+            // Creare un link temporaneo per il download del file
+            var link = document.createElement('a');
+            link.href = window.URL.createObjectURL(blob);
+            link.download = 'plot.png';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        });
+        }
+    </script>
+
+
 {% endblock %}
 

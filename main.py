@@ -4,13 +4,14 @@ from fastapi import FastAPI, Request
 from fastapi.responses import HTMLResponse, FileResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
-import redis
-from rq import Connection, Queue
-from rq.job import Job
 from app.config import Configuration
 from app.forms.classification_form import ClassificationForm
 from app.ml.classification_utils import classify_image
 from app.utils import list_images
+from fastapi import FastAPI
+import base64
+from PIL import Image
+from io import BytesIO
 
 
 app = FastAPI()
@@ -66,6 +67,21 @@ async def request_classification(request: Request):
 def download_results():
     return FileResponse("app/static/results.json", media_type="application/json", filename="results.json")
 
-@app.get("/downloadPlot")
-def download_plot():
-    pass
+@app.post("/downloadPlot")
+def download_plot(ctx: dict):
+    # Retrieve the image url from the context
+    image_url = ctx.get("ctx")
+
+    # Rimuovi l'intestazione del formato dell'immagine (es. "data:image/png;base64,")
+    base64_data = image_url.split(',')[1]
+
+    # Decodifica il dato base64
+    image_data = base64.b64decode(base64_data)
+
+    # Creare un oggetto di immagine utilizzando il modulo Pillow (PIL)
+    image = Image.open(BytesIO(image_data))
+
+    # Salva l'immagine come file PNG
+    image.save("app/static/plot.png", "PNG")
+
+    return FileResponse("app/static/plot.png", media_type="image/png", filename="plot.png")
