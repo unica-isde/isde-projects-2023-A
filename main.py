@@ -63,8 +63,11 @@ async def request_classification(request: Request):
 def upload_and_classify(request: Request):
 	return templates.TemplateResponse(
 		"classification_upload_image.html",
-		{"request":request}
-)
+		{
+            "request":request,
+            "models": Configuration.models
+        }
+    )
 
 @app.post("/upload-and-classify")
 async def request_file_upload(request: Request):
