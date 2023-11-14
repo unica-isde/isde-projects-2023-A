@@ -59,6 +59,13 @@ async def request_classification(request: Request):
         },
     )
 
+@app.get("/upload-and-classify")
+def upload_and_classify(request: Request):
+	return templates.TemplateResponse(
+		"classification_upload_image.html",
+		{"request":request}
+)
+
 @app.post("/upload-and-classify")
 async def request_file_upload(request: Request):
 	form = ClassificationForm(request)
