@@ -72,16 +72,17 @@ def download_plot(ctx: dict):
     # Retrieve the image url from the context
     image_url = ctx.get("ctx")
 
-    # Rimuovi l'intestazione del formato dell'immagine (es. "data:image/png;base64,")
+    # Remove the prefix from the base64 string
     base64_data = image_url.split(',')[1]
 
-    # Decodifica il dato base64
+    # Decode the base64 string
     image_data = base64.b64decode(base64_data)
 
-    # Creare un oggetto di immagine utilizzando il modulo Pillow (PIL)
+    # Create a PIL image from the decoded base64 string
     image = Image.open(BytesIO(image_data))
 
-    # Salva l'immagine come file PNG
+    # Save the image to the static folder
     image.save("app/static/plot.png", "PNG")
+
 
     return FileResponse("app/static/plot.png", media_type="image/png", filename="plot.png")

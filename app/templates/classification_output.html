@@ -76,7 +76,6 @@
                 throw new Error('Request failed.');
             }).then(function (blob) {
 
-            // Creare un link temporaneo per il download del file
             var link = document.createElement('a');
             link.href = window.URL.createObjectURL(blob);
             link.download = 'plot.png';
