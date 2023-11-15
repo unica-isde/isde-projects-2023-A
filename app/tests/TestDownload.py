@@ -1,7 +1,7 @@
 import unittest
 from bs4 import BeautifulSoup
 import requests
-
+import base64
 
 
 class TestDownload(unittest.TestCase):
@@ -47,4 +47,22 @@ class TestDownload(unittest.TestCase):
         self.assertEqual(response.headers["Content-Type"], "application/json", "The file is not a json file")
 
     def test_plotIsCorrect(self):
-        pass
+        """
+        Test if the plot is not empty.
+        """
+        # Open an image and encode it in base 64
+        with open("../static/plot.png", "rb") as f:
+            base64image = base64.b64encode(f.read())
+
+            # Create a dict with the base 64 encoded image with JSON format
+            payload = {"ctx": base64image.decode("utf-8")}
+
+            # Make a request to the endpoint that returns the plot, Put in the body the base 64 encoded image as a dict
+            response = requests.post("http://localhost:8000/downloadPlot", json=payload)
+
+            # Check if the response is not empty and it is a png file
+            self.assertIsNotNone(response, "The plot is empty")
+            self.assertEqual(response.headers["Content-Type"], "image/png", "The file is not a png file")
+            self.assertEqual(response.headers["Content-Disposition"], "attachment; filename=\"plot.png\"",
+                             "The file is not a png file")
+            self.assertEqual(response.status_code, 200, "The status code is not 200")
