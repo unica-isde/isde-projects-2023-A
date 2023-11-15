@@ -57,9 +57,12 @@
     <script src="{{ "static/graph.js" }}" id="makeGraph" classification_scores="{{classification_scores}}"></script>
     <script>
         function downloadImage(){
+            /** Download the plot as a png image. */
 
+            // Get the canvas element.
             var ctx = document.getElementById("classificationOutput").toDataURL();
 
+            // Send the canvas element to the server.
             fetch('/downloadPlot', {
                 method: 'POST',
                 headers: {
@@ -68,19 +71,30 @@
                 body: JSON.stringify({
                     'ctx': ctx
                 })
-            }).then(function (response) {
+            }).then(function (response) { // At this point, FastAPI has received the canvas element and has saved it as a png image.
                 if (response.ok) {
                     console.log(response);
                     return response.blob();
                 }
                 throw new Error('Request failed.');
-            }).then(function (blob) {
+            }).then(function (blob) { // Download the image.
 
+            // Create a link to the image.
             var link = document.createElement('a');
+
+            // Create a blob URL for the image.
             link.href = window.URL.createObjectURL(blob);
+
+            // Set the link to be downloadable.
             link.download = 'plot.png';
+
+            // Append the link to the body.
             document.body.appendChild(link);
+
+            // Trigger the click event on the link.
             link.click();
+
+            // Remove the link from the body.
             document.body.removeChild(link);
         });
         }
