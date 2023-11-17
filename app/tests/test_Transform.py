@@ -9,7 +9,7 @@ class MyTestCase(unittest.TestCase):
         """
         Test if the inputs are present in the classification transformation page.
         """
-        with open("../templates/classification_transform_select.html") as f:
+        with open("app/templates/classification_transform_select.html") as f:
             soup = BeautifulSoup(f.read(), "html.parser")
             inputcolor= soup.find("input", {"name": "color"})
             self.assertIsNotNone(inputcolor)
