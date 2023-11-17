@@ -66,3 +66,7 @@ class TestDownload(unittest.TestCase):
             self.assertEqual(response.headers["Content-Disposition"], "attachment; filename=\"plot.png\"",
                              "The file is not a png file")
             self.assertEqual(response.status_code, 200, "The status code is not 200")
+
+
+if __name__ == '__main__':
+    unittest.main()
