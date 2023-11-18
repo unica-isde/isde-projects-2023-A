@@ -13,7 +13,7 @@ class TestDownload(unittest.TestCase):
         """
         Test if the buttons are in the html page and have the right text.
         """
-        with open("../templates/classification_output.html") as f:
+        with open("app/templates/classification_output.html") as f:
             html = f.read()
             soup = BeautifulSoup(html, "html.parser")
 
@@ -51,7 +51,7 @@ class TestDownload(unittest.TestCase):
         Test if the plot is not empty.
         """
         # Open an image and encode it in base 64
-        with open("../static/plot.png", "rb") as f:
+        with open("app/static/plot.png", "rb") as f:
             base64image = base64.b64encode(f.read())
 
             # Create a dict with the base 64 encoded image with JSON format
