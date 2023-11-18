@@ -1,5 +1,6 @@
 import json
 import io
+import base64
 from typing import Dict, List
 from fastapi import FastAPI, Request
 from fastapi.responses import HTMLResponse
@@ -99,11 +100,13 @@ async def request_file_upload(request: Request):
     model_id = form.model_id
     classification_scores = classify_image(model_id=model_id, img_id=bytes_img, fetch_image=fetch_image_bytes)
 
+    b64_img = base64.b64encode(bytes_img).decode('utf-8')
+
     return templates.TemplateResponse(
         "classification_output.html",
         {
             "request": request,
-            "image_id": "dummy var",
+            "image_base64": b64_img,
             "classification_scores": json.dumps(classification_scores),
         },
     )
