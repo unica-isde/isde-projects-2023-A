@@ -7,6 +7,7 @@ import json
 import logging
 import os
 import torch
+import io
 from PIL import Image
 from torchvision import transforms
 
@@ -15,6 +16,10 @@ from app.config import Configuration
 
 conf = Configuration()
 
+def fetch_image_bytes(bytes_img):
+    """Gets the Pillow image from bytes received in the post request"""
+    img = Image.open(io.BytesIO(bytes_img))
+    return img
 
 def fetch_image_file(image_id):
     """Gets the image from the specified ID. It returns only images
