@@ -13,6 +13,7 @@ from app.ml.classification_utils import fetch_image_bytes
 from app.utils import list_images
 from PIL import ImageEnhance , Image
 from app.forms.classification_transform_form import ClassificationTransformForm
+from app.forms.classification_upload_form import ClassificationUploadForm
 
 
 
@@ -92,24 +93,33 @@ async def request_classification(request: Request):
     )
 
 @app.post("/upload-and-classify")
-async def request_file_upload(request: Request):
-    form = ClassificationForm(request)
+async def request_classification_upload(request: Request):
+    form = ClassificationUploadForm(request)
     await form.load_data()
 
-    bytes_img = form.image_bytes
-    model_id = form.model_id
-    classification_scores = classify_image(model_id=model_id, img_id=bytes_img, fetch_image=fetch_image_bytes)
+    if form.is_valid():
+        bytes_img = form.image_bytes
+        model_id = form.model_id
+        classification_scores = classify_image(model_id=model_id, img_id=bytes_img, fetch_image=fetch_image_bytes)
 
-    b64_img = base64.b64encode(bytes_img).decode('utf-8')
+        b64_img = base64.b64encode(bytes_img).decode('utf-8')
 
-    return templates.TemplateResponse(
-        "classification_output.html",
-        {
-            "request": request,
-            "image_base64": b64_img,
-            "classification_scores": json.dumps(classification_scores),
-        },
-    )
+        return templates.TemplateResponse(
+            "classification_output.html",
+            {
+                "request": request,
+                "image_base64": b64_img,
+                "classification_scores": json.dumps(classification_scores),
+            },
+        )
+    else:
+        return templates.TemplateResponse(
+            "classification_output.html",
+            {
+                "request": request,
+                "image_id":"fgdfgdf"
+            },
+        )
 
 @app.post("/classificationsTransform")
 async def request_classification_transform(request: Request):
