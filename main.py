@@ -169,7 +169,9 @@ async def request_classification_transform(request: Request):
         # Pass the file path to classify_image function
         classification_scores = classify_image(model_id=model_id, img_id=path)
 
-        # Close and delete the temporary file
+        # Save the results in a json file
+        with open("app/static/results.json", "w") as f:
+            json.dump(classification_scores, f)
 
         return templates.TemplateResponse(
             "classification_output.html",
