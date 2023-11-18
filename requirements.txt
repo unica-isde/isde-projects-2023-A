@@ -6,4 +6,5 @@ Pillow
 redis
 rq
 python-multipart
-beautifulsoup4
+bs4
+uvicorn
