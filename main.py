@@ -1,4 +1,5 @@
 import json
+import io
 from typing import Dict, List
 from fastapi import FastAPI, Request
 from fastapi.responses import HTMLResponse
@@ -19,7 +20,6 @@ config = Configuration()
 
 app.mount("/static", StaticFiles(directory="app/static"), name="static")
 templates = Jinja2Templates(directory="app/templates")
-
 
 @app.get("/info")
 def info() -> Dict[str, List[str]]:
@@ -72,7 +72,7 @@ def upload_and_classify(request: Request):
             "models": Configuration.models
         }
     )
-    
+
 @app.post("/classifications")
 async def request_classification(request: Request):
     form = ClassificationForm(request)
@@ -89,18 +89,13 @@ async def request_classification(request: Request):
         },
     )
 
-
 @app.post("/upload-and-classify")
 async def request_file_upload(request: Request):
-	form = ClassificationForm(request)
-	await form.load_data()
-
-	imag = form.image
-
-	print(type(form.image_bytes))
-	print(form.image_bytes[:100])
-     
-	return {"success":"True"}
+    form = ClassificationForm(request)
+    await form.load_data()
+    pil_img = Image.open(io.BytesIO(form.image_bytes))
+    
+    return {"success":"True"}
 
 @app.post("/classificationsTransform")
 async def request_classification_transform(request: Request):
