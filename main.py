@@ -8,6 +8,7 @@ from fastapi.templating import Jinja2Templates
 from app.config import Configuration
 from app.forms.classification_form import ClassificationForm
 from app.ml.classification_utils import classify_image
+from app.ml.classification_utils import fetch_image_bytes
 from app.utils import list_images
 from PIL import ImageEnhance , Image
 from app.forms.classification_transform_form import ClassificationTransformForm
@@ -93,9 +94,19 @@ async def request_classification(request: Request):
 async def request_file_upload(request: Request):
     form = ClassificationForm(request)
     await form.load_data()
-    pil_img = Image.open(io.BytesIO(form.image_bytes))
-    
-    return {"success":"True"}
+
+    bytes_img = form.image_bytes
+    model_id = form.model_id
+    classification_scores = classify_image(model_id=model_id, img_id=bytes_img, fetch_image=fetch_image_bytes)
+
+    return templates.TemplateResponse(
+        "classification_output.html",
+        {
+            "request": request,
+            "image_id": "dummy var",
+            "classification_scores": json.dumps(classification_scores),
+        },
+    )
 
 @app.post("/classificationsTransform")
 async def request_classification_transform(request: Request):
