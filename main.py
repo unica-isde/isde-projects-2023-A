@@ -4,13 +4,14 @@ from fastapi import FastAPI, Request
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
-import redis
-from rq import Connection, Queue
-from rq.job import Job
 from app.config import Configuration
 from app.forms.classification_form import ClassificationForm
 from app.ml.classification_utils import classify_image
 from app.utils import list_images
+from PIL import ImageEnhance , Image
+from app.forms.classification_transform_form import ClassificationTransformForm
+
+
 
 
 app = FastAPI()
@@ -43,6 +44,35 @@ def create_classify(request: Request):
         {"request": request, "images": list_images(), "models": Configuration.models},
     )
 
+@app.get("/classificationsTransform")
+def create_classify_transform(request: Request):
+    """
+    This function creates the classification transformation page.
+    Parameters
+    ----------
+    request: Request
+        The request that the user sends to the server.
+
+    Returns
+    -------
+    templates.TemplateResponse
+        The classification transformation page.
+    """
+    return templates.TemplateResponse(
+        "classification_transform_select.html",
+        {"request": request, "images": list_images(), "models": Configuration.models},
+    )
+
+@app.get("/upload-and-classify")
+def upload_and_classify(request: Request):
+	return templates.TemplateResponse(
+		"classification_upload_image.html",
+		{
+            "request":request,
+            "models": Configuration.models
+        }
+    )
+    
 @app.post("/classifications")
 async def request_classification(request: Request):
     form = ClassificationForm(request)
@@ -59,15 +89,6 @@ async def request_classification(request: Request):
         },
     )
 
-@app.get("/upload-and-classify")
-def upload_and_classify(request: Request):
-	return templates.TemplateResponse(
-		"classification_upload_image.html",
-		{
-            "request":request,
-            "models": Configuration.models
-        }
-    )
 
 @app.post("/upload-and-classify")
 async def request_file_upload(request: Request):
@@ -80,3 +101,52 @@ async def request_file_upload(request: Request):
 	print(form.image_bytes[:100])
      
 	return {"success":"True"}
+
+@app.post("/classificationsTransform")
+async def request_classification_transform(request: Request):
+    """
+    This function requests the classification transformation page.
+    Parameters
+    ----------
+    request: Request
+        The request that the user sends to the server.
+
+    Returns
+    -------
+    templates.TemplateResponse
+        The classification transformation page.
+        
+    """
+    form = ClassificationTransformForm(request)
+    await form.load_data()
+    image_id = form.image_id
+    model_id = form.model_id
+    color = form.color
+    brightness = form.brightness
+    contrast = form.contrast
+    sharpness = form.sharpness
+    with Image.open("app/static/imagenet_subset/" + image_id) as img:
+        img = ImageEnhance.Color(img).enhance(color)
+        img = ImageEnhance.Brightness(img).enhance(brightness)
+        img = ImageEnhance.Contrast(img).enhance(contrast)
+        img = ImageEnhance.Sharpness(img).enhance(sharpness)
+
+        # Save the modified image to a temporary file
+        path = "temp.jpg"
+        img.save("app/static/imagenet_subset/" + path)
+
+        # Pass the file path to classify_image function
+        classification_scores = classify_image(model_id=model_id, img_id=path)
+
+        # Close and delete the temporary file
+
+        return templates.TemplateResponse(
+            "classification_output.html",
+            {
+                "request": request,
+                "image_id": path,
+                "classification_scores": json.dumps(classification_scores),
+            },
+        )
+
+
