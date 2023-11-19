@@ -3,7 +3,7 @@ import io
 import base64
 from typing import Dict, List
 from fastapi import FastAPI, Request
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, FileResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from app.config import Configuration
@@ -11,11 +11,11 @@ from app.forms.classification_form import ClassificationForm
 from app.ml.classification_utils import classify_image
 from app.ml.classification_utils import fetch_image_bytes
 from app.utils import list_images
+import base64
+from io import BytesIO
 from PIL import ImageEnhance , Image
 from app.forms.classification_transform_form import ClassificationTransformForm
 from app.forms.classification_upload_form import ClassificationUploadForm
-
-
 
 
 app = FastAPI()
@@ -96,6 +96,11 @@ async def request_classification(request: Request):
     image_id = form.image_id
     model_id = form.model_id
     classification_scores = classify_image(model_id=model_id, img_id=image_id)
+
+    # Save the results in a json file
+    with open("app/static/results.json", "w") as f:
+        json.dump(classification_scores, f)
+
     return templates.TemplateResponse(
         "classification_output.html",
         {
@@ -144,6 +149,56 @@ async def request_classification_upload(request: Request):
             },
         )
 
+@app.get("/downloadResults")
+def download_results():
+    """
+    This function is called when the user clicks on the "Download results" button, it returns the json file to the user.
+    Returns
+    -------
+    FileResponse: the json file.
+    """
+
+    # Return the json file to the user previously saved in the static folder
+    return FileResponse("app/static/results.json", media_type="application/json", filename="results.json")
+
+
+@app.post("/downloadPlot")
+def download_plot(ctx: dict):
+    """
+    This function is called when the user clicks on the "Download plot" button, it saves the plot in the static folder
+    and returns it to the user.
+    Parameters
+    ----------
+    ctx: dict, required (ctx) is the base64 string of the plot.
+
+    Returns
+    -------
+    FileResponse: the plot in png format.
+    """
+
+    # Retrieve the image url from the context
+    image_url = ctx.get("ctx")
+
+    base64_data = image_url
+
+    # If the image url has some prefix, remove it
+    if image_url.startswith("data:image/png;base64,"):
+        # Remove the prefix from the base64 string
+        base64_data = image_url.split(',')[1]
+
+    # Decode the base64 string
+    image_data = base64.b64decode(base64_data)
+
+    # Create a PIL image from the decoded base64 string
+    image = Image.open(BytesIO(image_data))
+
+    # Save the image to the static folder
+    image.save("app/static/plot.png", "PNG")
+
+    # Return the image to the user
+    return FileResponse("app/static/plot.png", media_type="image/png", filename="plot.png")
+
+
 @app.post("/classificationsTransform")
 async def request_classification_transform(request: Request):
     """
@@ -180,7 +235,9 @@ async def request_classification_transform(request: Request):
         # Pass the file path to classify_image function
         classification_scores = classify_image(model_id=model_id, img_id=path)
 
-        # Close and delete the temporary file
+        # Save the results in a json file
+        with open("app/static/results.json", "w") as f:
+            json.dump(classification_scores, f)
 
         return templates.TemplateResponse(
             "classification_output.html",
@@ -190,5 +247,3 @@ async def request_classification_transform(request: Request):
                 "classification_scores": json.dumps(classification_scores),
             },
         )
-
-
