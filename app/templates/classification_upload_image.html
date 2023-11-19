@@ -18,7 +18,7 @@
             Choose image:
         </h4>
         <p>
-            <input type="file" id="image" name="image" accept="image/*" class="btn btn-secondary btn-lg"><br>
+            <input type="file" id="image" name="image" accept="{{ ','.join(img_allowed_formats) }}" class="btn btn-secondary btn-lg"><br>
         </p>
         <button type="submit" class="btn btn-dark mb-2">Submit</button>
     </form>

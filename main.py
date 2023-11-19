@@ -68,11 +68,14 @@ def create_classify_transform(request: Request):
 
 @app.get("/upload-and-classify")
 def upload_and_classify(request: Request):
-	return templates.TemplateResponse(
-		"classification_upload_image.html",
-		{
+    print(Configuration.models,Configuration.image_folder_path,Configuration.img_allowed_formats)
+
+    return templates.TemplateResponse(
+        "classification_upload_image.html",
+        {
             "request":request,
-            "models": Configuration.models
+            "models": Configuration.models,
+            "img_allowed_formats": Configuration.img_allowed_formats
         }
     )
 
