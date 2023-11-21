@@ -1,0 +1,1 @@
+TEST_IMAGE_ID = "n01440764_tench.JPEG"
