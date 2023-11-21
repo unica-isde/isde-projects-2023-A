@@ -9,7 +9,9 @@ from rq import Connection, Queue
 from rq.job import Job
 from app.config import Configuration
 from app.forms.classification_form import ClassificationForm
+from app.forms.classification_form_histogram import ClassificationFormHistogram
 from app.ml.classification_utils import classify_image
+from app.ml.classification_utils import fetch_image
 from app.utils import list_images
 
 
@@ -57,5 +59,30 @@ async def request_classification(request: Request):
             "request": request,
             "image_id": image_id,
             "classification_scores": json.dumps(classification_scores),
+        },
+    )
+
+
+@app.get("/classifications_histogram")
+def create_classify(request: Request):
+    return templates.TemplateResponse(
+        "classification_select_histogram.html",
+        {"request": request, "images": list_images()},
+    )
+
+
+@app.post("/classifications_histogram")
+async def request_classification(request: Request):
+    form = ClassificationFormHistogram("")
+    await form.load_data(request)
+    image_id = form.image_id
+    img = fetch_image(image_id)
+
+    return templates.TemplateResponse(
+        "classification_output_histogram.html",
+        {
+            "request": request,
+            "image_id": image_id,
+            "image": img,
         },
     )
