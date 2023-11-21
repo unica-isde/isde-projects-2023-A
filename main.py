@@ -13,7 +13,8 @@ from app.forms.classification_form_histogram import ClassificationFormHistogram
 from app.ml.classification_utils import classify_image
 from app.ml.classification_utils import fetch_image
 from app.utils import list_images
-
+from io import BytesIO
+import base64
 
 app = FastAPI()
 config = Configuration()
@@ -77,12 +78,16 @@ async def request_classification(request: Request):
     await form.load_data(request)
     image_id = form.image_id
     img = fetch_image(image_id)
+    # convert image to base64 string to display in html
+    buffered = BytesIO()
+    img.save(buffered, format="JPEG")
+    img_str = base64.b64encode(buffered.getvalue()).decode("utf-8")
 
     return templates.TemplateResponse(
         "classification_output_histogram.html",
         {
             "request": request,
             "image_id": image_id,
-            "image": img,
+            "image": img_str,
         },
     )
