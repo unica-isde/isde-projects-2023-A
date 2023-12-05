@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+    <h1>Select Model and upload your image</h1>
+    <form method="post" action="/upload-and-classify" enctype="multipart/form-data">
+        <h4>
+            Model:
+        </h4>
+        <p>
+            <select name="model_id" class="custom-select">
+                {% for model in models %}
+                  <option value="{{ model }}" SELECTED>{{ model }}</option>
+                {% endfor %}
+              </select>
+        </p>
+        <h4>
+            Choose image:
+        </h4>
+        <p>
+            <input type="file" id="image" name="image" accept="{{ ','.join(img_allowed_formats) }}" class="btn btn-secondary btn-lg"><br>
+        </p>
+        <button type="submit" class="btn btn-dark mb-2">Submit</button>
+    </form>
+
+{% endblock %}

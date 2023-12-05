@@ -1,4 +1,6 @@
 import json
+import io
+import base64
 from typing import Dict, List
 from fastapi import FastAPI, Request
 from fastapi.responses import HTMLResponse, FileResponse
@@ -7,11 +9,13 @@ from fastapi.templating import Jinja2Templates
 from app.config import Configuration
 from app.forms.classification_form import ClassificationForm
 from app.ml.classification_utils import classify_image
+from app.ml.classification_utils import fetch_image_bytes
 from app.utils import list_images
 import base64
 from io import BytesIO
 from PIL import ImageEnhance , Image
 from app.forms.classification_transform_form import ClassificationTransformForm
+from app.forms.classification_upload_form import ClassificationUploadForm
 
 
 app = FastAPI()
@@ -19,7 +23,6 @@ config = Configuration()
 
 app.mount("/static", StaticFiles(directory="app/static"), name="static")
 templates = Jinja2Templates(directory="app/templates")
-
 
 @app.get("/info")
 def info() -> Dict[str, List[str]]:
@@ -63,6 +66,29 @@ def create_classify_transform(request: Request):
         {"request": request, "images": list_images(), "models": Configuration.models},
     )
 
+@app.get("/upload-and-classify")
+def upload_and_classify(request: Request):
+    """
+    This function return the upload image page with his form.
+    Parameters
+    ----------
+    request: Request
+        The request that the user sends to the server.
+
+    Returns
+    -------
+    templates.TemplateResponse
+        The page with available models and allowed images format    
+    """
+    return templates.TemplateResponse(
+        "classification_upload_image.html",
+        {
+            "request":request,
+            "models": Configuration.models,
+            "img_allowed_formats": Configuration.img_allowed_formats
+        }
+    )
+
 @app.post("/classifications")
 async def request_classification(request: Request):
     form = ClassificationForm(request)
@@ -83,6 +109,45 @@ async def request_classification(request: Request):
             "classification_scores": json.dumps(classification_scores),
         },
     )
+
+@app.post("/upload-and-classify")
+async def request_classification_upload(request: Request):
+    """
+    This function requests the upload image page.
+    Parameters
+    ----------
+    request: Request
+        The request that the user sends to the server.
+
+    Returns
+    -------
+    templates.TemplateResponse
+        The page with uploaded classified image and his score.     
+    """
+    # Load the form data from the post request
+    form = ClassificationUploadForm(request)
+    await form.load_data()
+
+    if form.is_valid():
+        # Retrive image_bytes loaded and model id from the form
+        bytes_img = form.image_bytes
+        model_id = form.model_id
+
+        # Call classify_image with choosen fetch_image function.
+        # fetch_image_bytes allows calling classify_image from raw bytes instead of a file
+        classification_scores = classify_image(model_id=model_id, img_id=bytes_img, fetch_image=fetch_image_bytes)
+
+        # Encode the loaded image in base64. It's useful to exploit html <img> tag with src="...;base64= ..."
+        b64_img = base64.b64encode(bytes_img).decode('utf-8')
+    
+        return templates.TemplateResponse(
+            "classification_output.html",
+            {
+                "request": request,
+                "image_base64": b64_img,
+                "classification_scores": json.dumps(classification_scores),
+            },
+        )
 
 @app.get("/downloadResults")
 def download_results():
@@ -132,6 +197,7 @@ def download_plot(ctx: dict):
 
     # Return the image to the user
     return FileResponse("app/static/plot.png", media_type="image/png", filename="plot.png")
+
 
 @app.post("/classificationsTransform")
 async def request_classification_transform(request: Request):

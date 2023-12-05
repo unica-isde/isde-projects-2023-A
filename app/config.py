@@ -14,3 +14,4 @@ class Configuration:
         "vgg16",
         "inception_v3",
     )
+    img_allowed_formats = ['image/jpeg', 'image/png', 'image/gif']
