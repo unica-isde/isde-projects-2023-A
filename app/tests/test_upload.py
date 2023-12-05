@@ -4,9 +4,12 @@ from bs4 import BeautifulSoup
 import requests
 
 class TestUpload(unittest.TestCase):
+    """
+    This class tests the file upload functionalities of the application.
+    """
     def setUp(self):
         self.host = "localhost"
-        self.port = "8000"
+        self.port = 8000
         self.api_name = "upload-and-classify"
         self.path_image_to_test = "app/static/test_images/"
         self.image_filename = "neural_net.png"
@@ -16,16 +19,13 @@ class TestUpload(unittest.TestCase):
         del self.port
         del self.api_name
         del self.path_image_to_test
+        del self.image_filename
 
-    """
-    This class tests the file download functionalities of the application.
-    """
     def test_image_loading(self):
         """
-        Test if the classified image is was uploaded correctly
+        Test if the classified image was uploaded correctly
         """
         img_complete_path = self.path_image_to_test + self.image_filename
-
         with open(img_complete_path, "rb") as file:
             # Conversion to base64 format of test image
             img_raw_bytes = file.read()
@@ -36,10 +36,10 @@ class TestUpload(unittest.TestCase):
             }
 
             files = {
-            "image": (self.path_image_to_test, img_raw_bytes, "image/jpeg"),
+            "image": (img_complete_path, img_raw_bytes, "image/jpeg"),
             }
-            #print(img_raw_bytes)
             # Perform a http post request to localhost
+            
             response = requests.post(
                 f"http://{self.host}:{self.port}/{self.api_name}",
                 data = form_data,
@@ -64,8 +64,7 @@ class TestUpload(unittest.TestCase):
             base64_image = base64.b64encode(img_raw_bytes).decode('utf-8')
 
             # Compare the base64 from the response with the original base64
-            self.assertEqual(base64_part, base64_image, f"Error uploading the image in /{self.api_name} api")
-
+            self.assertEqual(base64_part, base64_image, f"Error uploading the image in /fcsdv api") 
 if __name__ == '__main__':
     unittest.main()
 
