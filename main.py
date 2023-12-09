@@ -92,7 +92,7 @@ async def request_classification_transform(request: Request):
     -------
     templates.TemplateResponse
         The classification transformation page.
-        
+
     """
     form = ClassificationTransformForm(request)
     await form.load_data()
