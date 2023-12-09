@@ -1,13 +1,12 @@
 from typing import List
 from fastapi import Request
+#app.forms.classification_form import ClassificationForm
 
+from app.forms.classification_form import ClassificationForm
 
-class ClassificationTransformForm:
+class ClassificationTransformForm(ClassificationForm):
     def __init__(self, request: Request) -> None:
-        self.request: Request = request
-        self.errors: List = []
-        self.image_id: str
-        self.model_id: str
+        super().__init__(request)
         self.color: float
         self.brightness: float
         self.contrast: float
@@ -23,10 +22,4 @@ class ClassificationTransformForm:
         self.sharpness = float(form.get("sharpness"))
 
     def is_valid(self):
-        if not self.image_id or not isinstance(self.image_id, str):
-            self.errors.append("A valid image id is required")
-        if not self.model_id or not isinstance(self.model_id, str):
-            self.errors.append("A valid model id is required")
-        if not self.errors:
-            return True
-        return False
+        super().is_valid()
