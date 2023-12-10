@@ -1,7 +1,7 @@
 import unittest
 import os
 from PIL import Image
-from app.ml.classification_utils import fetch_image
+from app.ml.classification_utils import fetch_image_file
 
 from app.config import Configuration
 
@@ -14,7 +14,7 @@ class FetchImageTest(unittest.TestCase):
         expected_image_path = os.path.join(conf.image_folder_path, image_id)
         expected_image = Image.open(expected_image_path)
 
-        actual_image = fetch_image(image_id)
+        actual_image = fetch_image_file(image_id)
 
         self.assertEqual(actual_image, expected_image)
 
