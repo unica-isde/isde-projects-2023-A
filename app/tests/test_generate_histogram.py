@@ -10,7 +10,7 @@ class TestOutputHistogram(unittest.TestCase):
         """
         Test if the canvas is present in the classification output histogram page.
         """
-        with open("../templates/classification_output_histogram.html") as f:
+        with open("app/templates/classification_output_histogram.html") as f:
             soup = BeautifulSoup(f.read(), "html.parser")
             canvas_image = soup.find("canvas", {"id": "histogramCanvas"})
             self.assertIsNotNone(canvas_image, "There is no canvas in the html page")
@@ -19,7 +19,7 @@ class TestOutputHistogram(unittest.TestCase):
         """
         Test if the back button is present in the classification output histogram page.
         """
-        with open("../templates/classification_output_histogram.html") as f:
+        with open("app/templates/classification_output_histogram.html") as f:
             soup = BeautifulSoup(f.read(), "html.parser")
             back_button = soup.find("a", {"id": "backButton", "role": "button"})
             self.assertIsNotNone(back_button, "There is no back button in the html page")
@@ -28,7 +28,7 @@ class TestOutputHistogram(unittest.TestCase):
         """
         Test if the image is present in the classification output histogram page.
         """
-        with open("../templates/classification_output_histogram.html") as f:
+        with open("app/templates/classification_output_histogram.html") as f:
             soup = BeautifulSoup(f.read(), "html.parser")
             img = soup.find("img", {"id": "selectedImage"})
             self.assertIsNotNone(img, "There is no image in the html page")
