@@ -16,8 +16,5 @@ build/
 .idea
 
 # this should be downloaded during repo setup
-app/static/imagenet_subset
-
-# node files installed by running npm i
-node_modules
-app/static/package-lock.json
+app/static/imagenet_subset/*
+!app/static/imagenet_subset/*.json

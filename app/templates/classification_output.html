@@ -11,13 +11,30 @@
             margin: 0 auto;
         }
 
+        .btn {
+            margin: 10px;
+            background-color: #333333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border: 3px solid #476d36;
+        }
+
+        .btn:hover {
+            background-color: #476d36;
+            border: 3px solid #333333;
+        }
+
     </style>
+
     <div class="row">
         <div class="col">
             <div class="card">
-                <img class="large-front-thumbnail"
-                     src="{{ 'static/imagenet_subset/'+image_id }} "
-                     alt={{ image_id }}/>
+                {% if image_id %}
+                <img class="large-front-thumbnail" src="{{ 'static/imagenet_subset/'+image_id }}" alt="{{ image_id }}"/>
+                {% elif image_base64 %}
+                <img class="large-front-thumbnail" src="data:image/png;base64,{{ image_base64 }}" alt="Uploaded Image">
+                {% endif %}
             </div>
         </div>
         <div class="col">
@@ -28,10 +45,63 @@
                         <h2 id="waitText"></h2>
                         </div>
                     </div>
-                </div>
-                <a class="btn btn-primary" href="/classifications" role="button">Back</a>
+                    <a class="btn btn-primary" href="/classifications" role="button">Back</a>
+            </div>
+            <div>
+                <a class="btn btn-primary" href="/downloadResults" role="button" id="downloadResultsButton">Download results</a>
+            </div>
+            <div>
+                <a class="btn btn-primary" role="button" id="downloadPlotButton" onclick="downloadImage()">Download plot</a>
+            </div>
         </div>
     </div>
+
     <script src="{{ "static/graph.js" }}" id="makeGraph" classification_scores="{{classification_scores}}"></script>
+    <script>
+        function downloadImage(){
+            /** Download the plot as a png image. */
+
+            // Get the canvas element.
+            var ctx = document.getElementById("classificationOutput").toDataURL();
+
+            // Send the canvas element to the server.
+            fetch('/downloadPlot', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    'ctx': ctx
+                })
+            }).then(function (response) { // At this point, FastAPI has received the canvas element and has saved it as a png image.
+                if (response.ok) {
+                    console.log(response);
+                    return response.blob();
+                }
+                throw new Error('Request failed.');
+            }).then(function (blob) { // Download the image.
+
+            // Create a link to the image.
+            var link = document.createElement('a');
+
+            // Create a blob URL for the image.
+            link.href = window.URL.createObjectURL(blob);
+
+            // Set the link to be downloadable.
+            link.download = 'plot.png';
+
+            // Append the link to the body.
+            document.body.appendChild(link);
+
+            // Trigger the click event on the link.
+            link.click();
+
+            // Remove the link from the body.
+            document.body.removeChild(link);
+        });
+        }
+    </script>
+
+
 {% endblock %}
 

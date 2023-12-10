@@ -6,3 +6,5 @@ Pillow
 redis
 rq
 python-multipart
+bs4
+uvicorn
