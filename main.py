@@ -8,15 +8,16 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from app.config import Configuration
 from app.forms.classification_form import ClassificationForm
+from app.forms.classification_form_histogram import ClassificationFormHistogram
 from app.ml.classification_utils import classify_image
 from app.ml.classification_utils import fetch_image_bytes
+from app.ml.classification_utils import fetch_image
 from app.utils import list_images
 import base64
 from io import BytesIO
 from PIL import ImageEnhance , Image
 from app.forms.classification_transform_form import ClassificationTransformForm
 from app.forms.classification_upload_form import ClassificationUploadForm
-
 
 app = FastAPI()
 config = Configuration()
@@ -247,3 +248,57 @@ async def request_classification_transform(request: Request):
                 "classification_scores": json.dumps(classification_scores),
             },
         )
+      
+      
+@app.get("/classifications_histogram")
+def create_classify(request: Request):
+    """
+    This function is used to create the classification page for the histogram method.
+        Parameters
+        ----------
+        request: Request
+            The request object.
+
+        Returns
+        -------
+        templates.TemplateResponse
+            The template response with the request and the list of images.
+    """
+    return templates.TemplateResponse(
+        "classification_select_histogram.html",
+        {"request": request, "images": list_images()},
+    )
+
+
+@app.post("/classifications_histogram")
+    
+async def request_classification(request: Request):
+    """
+    This function is used to classify the image using the histogram method.
+        Parameters
+        ----------
+        request: Request
+            The request object.
+
+        Returns
+        -------
+        templates.TemplateResponse
+            The template response with the request, image_id and the image as base64 string.
+    """
+    form = ClassificationFormHistogram("")
+    await form.load_data(request)
+    image_id = form.image_id
+    img = fetch_image(image_id)
+    # convert image to base64 string to display in html
+    buffered = BytesIO()
+    img.save(buffered, format="JPEG")
+    img_str = base64.b64encode(buffered.getvalue()).decode("utf-8")
+
+    return templates.TemplateResponse(
+        "classification_output_histogram.html",
+        {
+            "request": request,
+            "image_id": image_id,
+            "image": img_str,
+        },
+    )
