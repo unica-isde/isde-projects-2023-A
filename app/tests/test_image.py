@@ -1,11 +1,18 @@
 import unittest
 import os
+import sys
 from PIL import Image
+from main import app
 from app.ml.classification_utils import fetch_image_file
 
 from app.config import Configuration
 
 conf = Configuration()
+
+current_dir = os.path.dirname(os.path.abspath(__file__))
+project_dir = os.path.abspath(os.path.join(current_dir, '../../'))
+sys.path.insert(0, project_dir)
+
 
 class FetchImageTest(unittest.TestCase):
 
