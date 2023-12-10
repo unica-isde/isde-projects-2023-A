@@ -9,6 +9,7 @@ from app.forms.classification_form import ClassificationForm
 from app.forms.classification_form_histogram import ClassificationFormHistogram
 from app.ml.classification_utils import classify_image
 from app.ml.classification_utils import fetch_image_bytes
+from app.ml.classification_utils import fetch_image_file
 from app.utils import list_images
 import base64
 from io import BytesIO
@@ -285,7 +286,7 @@ async def request_classification(request: Request):
     form = ClassificationFormHistogram("")
     await form.load_data(request)
     image_id = form.image_id
-    img = fetch_image(image_id)
+    img = fetch_image_file(image_id)
     # convert image to base64 string to display in html
     buffered = BytesIO()
     img.save(buffered, format="JPEG")
