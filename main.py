@@ -66,6 +66,18 @@ async def request_classification(request: Request):
 
 @app.get("/classifications_histogram")
 def create_classify(request: Request):
+    """
+    This function is used to create the classification page for the histogram method.
+        Parameters
+        ----------
+        request: Request
+            The request object.
+
+        Returns
+        -------
+        templates.TemplateResponse
+            The template response with the request and the list of images.
+    """
     return templates.TemplateResponse(
         "classification_select_histogram.html",
         {"request": request, "images": list_images()},
@@ -73,7 +85,20 @@ def create_classify(request: Request):
 
 
 @app.post("/classifications_histogram")
+    
 async def request_classification(request: Request):
+    """
+    This function is used to classify the image using the histogram method.
+        Parameters
+        ----------
+        request: Request
+            The request object.
+
+        Returns
+        -------
+        templates.TemplateResponse
+            The template response with the request, image_id and the image as base64 string.
+    """
     form = ClassificationFormHistogram("")
     await form.load_data(request)
     image_id = form.image_id
