@@ -20,14 +20,6 @@ And install the requirements with
 pip install -r requirements.txt
 ```
 
-In order to use our application, you must install node https://nodejs.org/en (It is recommended to download the LTS version.)
-
-And then write this command in the console to install the histogram maker's library.
-
-```bash
-npm i image-js
-```
-
 ## Configuration
 
 Configure the service by editing the file `config.py`.
