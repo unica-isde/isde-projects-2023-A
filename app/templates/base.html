@@ -60,6 +60,28 @@
 
 <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script>
+    function getCurrentURL() {
+        return window.location.pathname;
+    }
+    
+    function highlightCurrentLink() {
+        var currentURL = getCurrentURL();
+        var navItems = document.querySelectorAll('.navbar-nav .nav-item');
+
+        navItems.forEach(function (navItem) {
+            var link = navItem.querySelector('.nav-link');
+
+            if (link.getAttribute('href') === currentURL) {
+                navItem.classList.add('active');
+            } else {
+                navItem.classList.remove('active');
+            }
+        });
+    }
+
+    window.onload = highlightCurrentLink;
+</script>
 
 </body>
 </html>
