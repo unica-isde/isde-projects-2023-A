@@ -151,6 +151,17 @@ async def request_classification_upload(request: Request):
                 "classification_scores": json.dumps(classification_scores),
             },
         )
+    else:
+        # if the form is not valid, then return the home page template
+        return templates.TemplateResponse(
+        "classification_upload_image.html",
+        {
+            "request":request,
+            "models": Configuration.models,
+            "img_allowed_formats": Configuration.img_allowed_formats
+        }
+    )
+
 
 @app.get("/downloadResults")
 def download_results():
