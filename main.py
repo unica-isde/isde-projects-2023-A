@@ -136,6 +136,10 @@ async def request_classification_upload(request: Request):
         # fetch_image_bytes allows calling classify_image from raw bytes instead of a file
         classification_scores = classify_image(model_id=model_id, img_id=bytes_img, fetch_image=fetch_image_bytes)
 
+        # Save the results in a json file
+        with open("app/static/results.json", "w") as f:
+            json.dump(classification_scores, f)
+        
         # Encode the loaded image in base64. It's useful to exploit html <img> tag with src="...;base64= ..."
         b64_img = base64.b64encode(bytes_img).decode('utf-8')
     
@@ -147,6 +151,17 @@ async def request_classification_upload(request: Request):
                 "classification_scores": json.dumps(classification_scores),
             },
         )
+    else:
+        # if the form is not valid, then return the home page template
+        return templates.TemplateResponse(
+        "classification_upload_image.html",
+        {
+            "request":request,
+            "models": Configuration.models,
+            "img_allowed_formats": Configuration.img_allowed_formats
+        }
+    )
+
 
 @app.get("/downloadResults")
 def download_results():
