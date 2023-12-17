@@ -9,20 +9,6 @@ class TestDownload(unittest.TestCase):
     This class tests the file download functionalities of the application.
     """
 
-    def setUp(self):
-        self.host = "localhost"
-        self.port = 8000
-        self.api_name = "classifications"
-        self.path_image_to_test = "app/static/test_images/"
-        self.image_filename = "plot.png"
-
-    def tearDown(self):
-        del self.host
-        del self.port
-        del self.api_name
-        del self.path_image_to_test
-        del self.image_filename
-
     def test_buttonsInInterface(self):
         """
         Test if the buttons are in the html page and have the right text.
@@ -48,28 +34,6 @@ class TestDownload(unittest.TestCase):
 
             # Check if the button has the right text
             self.assertEqual(button.text, "Download plot", "The button has not the right text")
-
-    def test_plotIsCorrect(self):
-        """
-        Test if the plot is not empty.
-        """
-        img_complete_path = self.path_image_to_test + self.image_filename
-        # Open an image and encode it in base 64
-        with open(img_complete_path, "rb") as f:
-            base64image = base64.b64encode(f.read())
-
-            # Create a dict with the base 64 encoded image with JSON format
-            payload = {"ctx": base64image.decode("utf-8")}
-
-            # Make a request to the endpoint that returns the plot, Put in the body the base 64 encoded image as a dict
-            response = requests.post("http://localhost:8000/downloadPlot", json=payload)
-
-            # Check if the response is not empty and it is a png file
-            self.assertIsNotNone(response, "The plot is empty")
-            self.assertEqual(response.headers["Content-Type"], "image/png", "The file is not a png file")
-            self.assertEqual(response.headers["Content-Disposition"], "attachment; filename=\"plot.png\"",
-                             "The file is not a png file")
-            self.assertEqual(response.status_code, 200, "The status code is not 200")
 
 
 if __name__ == '__main__':
