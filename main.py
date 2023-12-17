@@ -1,4 +1,5 @@
 import json
+import uuid
 from typing import Dict, List
 from fastapi import FastAPI, Request
 from fastapi.responses import HTMLResponse, FileResponse
@@ -96,14 +97,18 @@ async def request_classification(request: Request):
     model_id = form.model_id
     classification_scores = classify_image(model_id=model_id, img_id=image_id)
 
+    #generate an unique id for the image
+    unique_id = str(uuid.uuid4())
+
     # Save the results in a json file
-    with open("app/static/results.json", "w") as f:
+    with open("app/static/plots_and_results/results_" + unique_id + ".json", "w") as f:
         json.dump(classification_scores, f)
 
     return templates.TemplateResponse(
         "classification_output.html",
         {
             "request": request,
+            "unique_id": unique_id,
             "image_id": image_id,
             "classification_scores": json.dumps(classification_scores),
         },
@@ -136,8 +141,11 @@ async def request_classification_upload(request: Request):
         # fetch_image_bytes allows calling classify_image from raw bytes instead of a file
         classification_scores = classify_image(model_id=model_id, img_id=bytes_img, fetch_image=fetch_image_bytes)
 
+        # generate an unique id for the image
+        unique_id = str(uuid.uuid4())
+
         # Save the results in a json file
-        with open("app/static/results.json", "w") as f:
+        with open("app/static/plots_and_results/results_" + unique_id + ".json", "w") as f:
             json.dump(classification_scores, f)
         
         # Encode the loaded image in base64. It's useful to exploit html <img> tag with src="...;base64= ..."
@@ -147,6 +155,7 @@ async def request_classification_upload(request: Request):
             "classification_output.html",
             {
                 "request": request,
+                "unique_id": unique_id,
                 "image_base64": b64_img,
                 "classification_scores": json.dumps(classification_scores),
             },
@@ -164,16 +173,18 @@ async def request_classification_upload(request: Request):
 
 
 @app.get("/downloadResults")
-def download_results():
+def download_results(request: Request):
     """
     This function is called when the user clicks on the "Download results" button, it returns the json file to the user.
     Returns
     -------
     FileResponse: the json file.
     """
+    #Get from the request the json file
+    unique_id = request.query_params.get("unique_id")
 
     # Return the json file to the user previously saved in the static folder
-    return FileResponse("app/static/results.json", media_type="application/json", filename="results.json")
+    return FileResponse("app/static/plots_and_results/results_"+unique_id+".json", media_type="application/json", filename="results.json")
 
 
 @app.post("/downloadPlot")
@@ -206,11 +217,11 @@ def download_plot(ctx: dict):
     # Create a PIL image from the decoded base64 string
     image = Image.open(BytesIO(image_data))
 
-    # Save the image to the static folder
-    image.save("app/static/plot.png", "PNG")
+    # Save the image to a static folder
+    image.save("app/static/plots_and_results/plot.png", "PNG")
 
     # Return the image to the user
-    return FileResponse("app/static/plot.png", media_type="image/png", filename="plot.png")
+    return FileResponse("app/static/plots_and_results/plot.png", media_type="image/png", filename="plot.png")
 
 
 @app.post("/classificationsTransform")
@@ -249,14 +260,18 @@ async def request_classification_transform(request: Request):
         # Pass the file path to classify_image function
         classification_scores = classify_image(model_id=model_id, img_id=path)
 
+        # generate an unique id for the image
+        unique_id = str(uuid.uuid4())
+
         # Save the results in a json file
-        with open("app/static/results.json", "w") as f:
+        with open("app/static/plots_and_results/results_" + unique_id + ".json", "w") as f:
             json.dump(classification_scores, f)
 
         return templates.TemplateResponse(
             "classification_output.html",
             {
                 "request": request,
+                "unique_id": unique_id,
                 "image_id": path,
                 "classification_scores": json.dumps(classification_scores),
             },
