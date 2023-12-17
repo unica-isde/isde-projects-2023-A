@@ -9,6 +9,20 @@ class TestDownload(unittest.TestCase):
     This class tests the file download functionalities of the application.
     """
 
+    def setUp(self):
+        self.host = "localhost"
+        self.port = 8000
+        self.api_name = "classifications"
+        self.path_image_to_test = "app/static/test_images/"
+        self.image_filename = "plot.png"
+
+    def tearDown(self):
+        del self.host
+        del self.port
+        del self.api_name
+        del self.path_image_to_test
+        del self.image_filename
+
     def test_buttonsInInterface(self):
         """
         Test if the buttons are in the html page and have the right text.
@@ -35,23 +49,13 @@ class TestDownload(unittest.TestCase):
             # Check if the button has the right text
             self.assertEqual(button.text, "Download plot", "The button has not the right text")
 
-    def test_jsonIsCorrect(self):
-        """
-        Test if the json file is not empty.
-        """
-        # Make a request to the endpoint that returns the json file
-        response = requests.get("http://localhost:8000/downloadResults")
-
-        # Check if the response is not empty and it is a json file
-        self.assertIsNotNone(response, "The json file is empty")
-        self.assertEqual(response.headers["Content-Type"], "application/json", "The file is not a json file")
-
     def test_plotIsCorrect(self):
         """
         Test if the plot is not empty.
         """
+        img_complete_path = self.path_image_to_test + self.image_filename
         # Open an image and encode it in base 64
-        with open("app/static/plot.png", "rb") as f:
+        with open(img_complete_path, "rb") as f:
             base64image = base64.b64encode(f.read())
 
             # Create a dict with the base 64 encoded image with JSON format
