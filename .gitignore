@@ -15,5 +15,8 @@ build/
 
 .idea
 
+app/static/plots_and_results/*
+
 # this should be downloaded during repo setup
-app/static/imagenet_subset
+app/static/imagenet_subset/*
+!app/static/imagenet_subset/*.json
